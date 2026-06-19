@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Link, useLocation } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { supabase } from "../supabaseClient";
 import { C, MONO, SANS } from "../theme";
 import Header from "../components/Header";
@@ -14,6 +14,7 @@ import { Icon } from "../icons";
 
 export default function Dashboard() {
   const location = useLocation();
+  const navigate = useNavigate();
   const justCreated = location.state?.justCreated || null;
 
   const [projects, setProjects] = useState([]);
@@ -112,17 +113,25 @@ export default function Dashboard() {
                   <Th>Type</Th>
                   <Th>Start</Th>
                   <Th>End</Th>
+                  <Th>{""}</Th>
                 </tr>
               </thead>
               <tbody>
                 {projects.map((p) => (
-                  <tr key={p.id} style={{ borderBottom: `1px solid ${C.border}` }}>
+                  <tr
+                    key={p.id}
+                    onClick={() => navigate(`/projects/${p.id}/log`)}
+                    style={{ borderBottom: `1px solid ${C.border}`, cursor: "pointer" }}
+                    onMouseEnter={(e) => (e.currentTarget.style.background = "#f7f8fa")}
+                    onMouseLeave={(e) => (e.currentTarget.style.background = "#fff")}
+                  >
                     <td style={{ ...td, fontWeight: 600 }}>{p.name}</td>
                     <td style={{ ...td, fontFamily: MONO, color: C.mut }}>{p.number || "—"}</td>
                     <td style={td}>{p.client || "—"}</td>
                     <td style={td}>{p.project_type || "—"}</td>
                     <td style={{ ...td, fontFamily: MONO, color: C.mut, whiteSpace: "nowrap" }}>{p.start_date || "—"}</td>
                     <td style={{ ...td, fontFamily: MONO, color: C.mut, whiteSpace: "nowrap" }}>{p.end_date || "—"}</td>
+                    <td style={{ ...td, color: C.accent, fontWeight: 600, whiteSpace: "nowrap" }}>Open log →</td>
                   </tr>
                 ))}
               </tbody>

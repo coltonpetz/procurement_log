@@ -3,6 +3,7 @@ import { Routes, Route, Navigate } from "react-router-dom";
 import Layout from "./components/Layout";
 import Dashboard from "./pages/Dashboard";
 import NewProject from "./pages/NewProject";
+import ProcurementLog from "./pages/ProcurementLog";
 
 // ───────────────────────────────────────────────────────────────────────────
 // App routes. The Layout renders the persistent sidebar; child routes render
@@ -16,6 +17,7 @@ export default function App() {
       <Route element={<Layout />}>
         <Route index element={<Dashboard />} />
         <Route path="projects/new" element={<NewProject />} />
+        <Route path="projects/:projectId/log" element={<ProcurementLog />} />
         <Route path="*" element={<Navigate to="/" replace />} />
       </Route>
     </Routes>

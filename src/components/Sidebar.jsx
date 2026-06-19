@@ -1,19 +1,41 @@
 import React from "react";
-import { NavLink } from "react-router-dom";
+import { NavLink, useLocation } from "react-router-dom";
 import { C, MONO, SANS } from "../theme";
 import { Icon } from "../icons";
 
 // ───────────────────────────────────────────────────────────────────────────
 // Left sidebar — charcoal, sharp-cornered, ported from the reference mockup.
-// This is the visual shell only; nav items route between screens.
+// The Procurement Log entry is project-scoped: it points at the most recently
+// viewed project's log (remembered in localStorage by the log screen). With no
+// project visited yet, it falls back to the dashboard where you pick one.
 // ───────────────────────────────────────────────────────────────────────────
 
-const NAV = [
-  { to: "/", label: "Dashboard", icon: <Icon.grid />, end: true },
-  { to: "/projects/new", label: "New Project", icon: <Icon.plus /> },
-];
+const linkStyle = (isActive) => ({
+  display: "flex",
+  alignItems: "center",
+  gap: 11,
+  width: "100%",
+  padding: "11px 18px",
+  background: isActive ? "#2b3447" : "transparent",
+  borderLeft: isActive ? `3px solid ${C.accent}` : "3px solid transparent",
+  color: isActive ? "#fff" : "#9aa3b5",
+  fontSize: 13.5,
+  fontWeight: 600,
+  cursor: "pointer",
+  textAlign: "left",
+  fontFamily: SANS,
+  textDecoration: "none",
+});
 
 export default function Sidebar() {
+  const location = useLocation();
+
+  // Reading inside render (with location as an implicit dep via useLocation)
+  // keeps this fresh as you navigate between projects.
+  const lastProjectId = localStorage.getItem("lastProjectId");
+  const logTo = lastProjectId ? `/projects/${lastProjectId}/log` : "/";
+  const onLogRoute = /^\/projects\/[^/]+\/log/.test(location.pathname);
+
   return (
     <aside
       style={{
@@ -42,32 +64,22 @@ export default function Sidebar() {
 
       {/* nav */}
       <nav style={{ padding: "12px 0", flex: 1 }}>
-        {NAV.map((n) => (
-          <NavLink
-            key={n.to}
-            to={n.to}
-            end={n.end}
-            style={({ isActive }) => ({
-              display: "flex",
-              alignItems: "center",
-              gap: 11,
-              width: "100%",
-              padding: "11px 18px",
-              background: isActive ? "#2b3447" : "transparent",
-              borderLeft: isActive ? `3px solid ${C.accent}` : "3px solid transparent",
-              color: isActive ? "#fff" : "#9aa3b5",
-              fontSize: 13.5,
-              fontWeight: 600,
-              cursor: "pointer",
-              textAlign: "left",
-              fontFamily: SANS,
-              textDecoration: "none",
-            })}
-          >
-            {n.icon}
-            {n.label}
-          </NavLink>
-        ))}
+        <NavLink to="/" end style={({ isActive }) => linkStyle(isActive)}>
+          <Icon.grid />
+          Dashboard
+        </NavLink>
+
+        <NavLink to="/projects/new" style={({ isActive }) => linkStyle(isActive)}>
+          <Icon.plus />
+          New Project
+        </NavLink>
+
+        {/* Project-scoped: active highlight is driven by the route, not NavLink,
+            because the target id is dynamic. */}
+        <NavLink to={logTo} style={() => linkStyle(onLogRoute)}>
+          <Icon.list />
+          Procurement Log
+        </NavLink>
       </nav>
 
       {/* footer */}
